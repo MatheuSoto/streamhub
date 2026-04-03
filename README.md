@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StreamHub
 
-## Getting Started
+Self-hosted homelab dashboard. Monitor your Proxmox server, access services via iframes, all in one place.
 
-First, run the development server:
+## Features
+
+- Real-time server monitoring (CPU, RAM, GPU, disks, storage pools)
+- LXC/VM status from Proxmox API
+- Docker container status
+- Embedded services via iframes (Immich, Jellyfin, AdGuard, etc.)
+- Sidebar navigation with service icons
+
+## Stack
+
+- Next.js 16 (App Router)
+- Tailwind CSS 4
+- Proxmox API for server metrics
+- Node.js monitor service for GPU + Docker stats
+
+## Setup
 
 ```bash
+npm install
+cp .env.example .env.local
+# Fill in your server IPs
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Monitor Service
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The dashboard requires a monitor API running on your LXC/server (port 9100). It queries:
+- Proxmox API for host/guest metrics
+- `nvidia-smi` for GPU stats
+- `docker ps` for container status
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See `monitor/server.js` for the service code.
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_SERVER_IP` | IP of the LXC running services |
+| `NEXT_PUBLIC_PROXMOX_IP` | IP of the Proxmox host |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
