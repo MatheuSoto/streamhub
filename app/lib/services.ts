@@ -10,10 +10,13 @@ const serviceMap: Record<string, { name: string; icon: string; description: stri
   "nextcloud-db":         { name: "Nextcloud DB", icon: `${ICON_CDN}/mariadb.svg`,     description: "Base de datos Nextcloud" },
   adguard:                { name: "AdGuard",     icon: `${ICON_CDN}/adguard-home.svg`, description: "DNS y Bloqueo de Ads" },
   streamhub:              { name: "StreamHub",   icon: `${ICON_CDN}/homepage.svg`,     description: "Dashboard" },
+  frigate:                { name: "Frigate",     icon: `${ICON_CDN}/frigate.svg`,      description: "Cámaras de Seguridad" },
+  ntfy:                   { name: "Ntfy",        icon: `${ICON_CDN}/ntfy.svg`,         description: "Notificaciones" },
+  homeassistant:          { name: "Home Assistant", icon: `${ICON_CDN}/home-assistant.svg`, description: "Domótica" },
 };
 
 // Main services (shown as cards)
-const mainServices = new Set(["immich_server", "jellyfin", "nextcloud", "adguard"]);
+const mainServices = new Set(["immich_server", "jellyfin", "nextcloud", "adguard", "frigate", "ntfy", "homeassistant"]);
 
 export interface ServiceCard {
   name: string;
