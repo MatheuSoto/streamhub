@@ -1,21 +1,56 @@
-export interface Service {
-  id: string;
+const ICON_CDN = "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg";
+
+const serviceMap: Record<string, { name: string; icon: string; description: string }> = {
+  immich_server:          { name: "Immich",      icon: `${ICON_CDN}/immich.svg`,       description: "Fotos y Videos" },
+  immich_machine_learning:{ name: "Immich ML",   icon: `${ICON_CDN}/immich.svg`,       description: "Reconocimiento facial" },
+  immich_postgres:        { name: "Immich DB",   icon: `${ICON_CDN}/postgresql.svg`,   description: "Base de datos Immich" },
+  immich_redis:           { name: "Immich Cache", icon: `${ICON_CDN}/redis.svg`,       description: "Cache Immich" },
+  jellyfin:               { name: "Jellyfin",    icon: `${ICON_CDN}/jellyfin.svg`,     description: "Películas y Series" },
+  nextcloud:              { name: "Nextcloud",   icon: `${ICON_CDN}/nextcloud.svg`,    description: "Archivos y Chat" },
+  "nextcloud-db":         { name: "Nextcloud DB", icon: `${ICON_CDN}/mariadb.svg`,     description: "Base de datos Nextcloud" },
+  adguard:                { name: "AdGuard",     icon: `${ICON_CDN}/adguard-home.svg`, description: "DNS y Bloqueo de Ads" },
+  streamhub:              { name: "StreamHub",   icon: `${ICON_CDN}/homepage.svg`,     description: "Dashboard" },
+};
+
+// Main services (shown as cards)
+const mainServices = new Set(["immich_server", "jellyfin", "nextcloud", "adguard"]);
+
+export interface ServiceCard {
   name: string;
   icon: string;
+  description: string;
   url: string;
-  type: "iframe" | "internal" | "external";
+  up: boolean;
+  main: boolean;
 }
 
-const CDN = "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg";
+export interface FixedService {
+  name: string;
+  icon: string;
+  description: string;
+  url: string;
+}
 
-export function getServices(serverIp: string, proxmoxIp: string): Service[] {
+export function getFixedServices(proxmoxIp: string): FixedService[] {
   return [
-    { id: "home",     name: "Inicio",     icon: `${CDN}/homepage.svg`,        url: "",                                type: "internal" },
-    { id: "movies",   name: "Películas",  icon: `${CDN}/radarr.svg`,          url: "",                                type: "internal" },
-    { id: "photos",   name: "Fotos",      icon: `${CDN}/immich.svg`,          url: `http://${serverIp}:2283`,         type: "iframe" },
-    { id: "media",    name: "Media",      icon: `${CDN}/jellyfin.svg`,        url: `http://${serverIp}:8096`,         type: "iframe" },
-    { id: "files",    name: "Archivos",   icon: `${CDN}/nextcloud.svg`,       url: `http://${serverIp}:8080`,         type: "external" },
-    { id: "dns",      name: "DNS",        icon: `${CDN}/adguard-home.svg`,    url: `http://${serverIp}:3000`,         type: "iframe" },
-    { id: "proxmox",  name: "Proxmox",    icon: `${CDN}/proxmox.svg`,         url: `https://${proxmoxIp}:8006`,       type: "external" },
+    { name: "Proxmox", icon: `${ICON_CDN}/proxmox.svg`, description: "Hypervisor", url: `https://${proxmoxIp}:8006` },
   ];
+}
+
+export function buildServices(containers: { name: string; up: boolean; ports: string }[], serverIp: string): ServiceCard[] {
+  return containers
+    .filter(c => c.name !== "streamhub")
+    .map(c => {
+      const info = serviceMap[c.name];
+      const portMatch = c.ports.match(/:(\d+)/);
+      const port = portMatch ? portMatch[1] : "";
+      return {
+        name: info?.name || c.name,
+        icon: info?.icon || `${ICON_CDN}/docker.svg`,
+        description: info?.description || c.name,
+        url: port ? `http://${serverIp}:${port}` : "",
+        up: c.up,
+        main: mainServices.has(c.name),
+      };
+    });
 }
